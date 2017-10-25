@@ -1,7 +1,19 @@
-# Práctica 1  
-Lucas Segarra Fernández
+# Práctica 1      
+Lucas Segarra Fernández<br>
 Sergio Semedi Barranco
 ## Cuestiones
+### Cuestión 7
+Lo mas relevante de esta cuestión es el valor de las macros:
+* SWITCH_ALL_EVENTS: Funciona con los dos switchs.  
+* SWITCH_0_PRESSED : Se activa al presionar el switch 0 
+* SWITCH_1_PRESSED : Se activa al presionar el switch 1 
+
+Cabe destacar la función *switch_add_callback* que permite pasar como parámetro tanto una macro de las que acabamos de definir anteriormente como una función que será invocada cada vez que la macro se cumpla.    
+
+La función *switch_init* lanza un hilo que monitoriza los eventos lanzados por el switch.   
+
+
+### Cuestión 7.2    
 ### Cuestión 7.3
 
 Parece ser que: 
