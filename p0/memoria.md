@@ -13,7 +13,19 @@ Cabe destacar la función *switch_add_callback* que permite pasar como parámetr
 La función *switch_init* lanza un hilo que monitoriza los eventos lanzados por el switch.   
 
 
-### Cuestión 7.2    
+### Cuestión 7.2 
+
+Para probar esta sección hemos lanzado lo siguiente en terminal:
+
+    $ while true
+    $ do
+    $   cat /sys/class/leds/marduk\:red\:user4/brightness
+    $   sleep 1
+    $ done 
+    
+Parece ser que el valor de ese archivo cambia a 1 cuando el led 4 de la placa esta encedido, como es un barrido (que va manteniendo los leds encendidos) debemos esperar a que se enciendan los 4 primeros (user4) para ver el valor del fichero cambiado. El fichero sys/class/leds/marduk\:red\:user1/brightness estará siempre a 1 durante toda la ejecución del programa ya que ese led esta encendido siempre.
+
+
 ### Cuestión 7.3
 
 Parece ser que: 
