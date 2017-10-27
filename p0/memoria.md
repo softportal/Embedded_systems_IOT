@@ -44,3 +44,18 @@ El valor del pin 23 parece no cambiar nunca, el proceso que hemos hecho para pro
     $ done 
 
 Nunca ha dejado de poner 1 independientemente de lo que hicieramos con el sensor.
+
+### Tarea 7
+
+El código se adjunta en el fichero app_p1.c
+
+al comprobar cat /sys/kernel/debuf/gpio | grep SWITCH : 
+
+ gpio-54  (                    |SWITCH 1            ) in  hi IRQ
+ gpio-46  (                    |SWITCH 2            ) in  hi IRQ
+ gpio-54  (                    |SWITCH 1            ) in  lo IRQ
+ gpio-46  (                    |SWITCH 2            ) in  lo IRQ
+ 
+ Vemos como cambia el valor de in (hi->lo) al pulsar los switches.
+
+
