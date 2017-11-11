@@ -21,32 +21,33 @@ AUTOSTART_PROCESSES(&p1, &p3);
 /*---------------------------------------------------------*/
 /*---------------------------------------------------------*/
 void
-do_callback()
+do_callback() //timer p3 expired
 {
-  static int b = 13;
-  b = b+1;
   ctimer_reset(&timer_ctimer);
-  a = a+1;
-
-  printf("P3 (callback) a = %d b = %d\n",a,b);
+  process_post(&p1,e1,NULL); //async to p1
+  printf("(p3) (callback)\n");
 }
 
 PROCESS_THREAD(p1, ev, data)
 {
   static struct etimer timer_etimer;
+  static int b = 0;
   PROCESS_BEGIN();
   e1 = process_alloc_event();
+  etimer_set(&timer_etimer, 4 * CLOCK_SECOND); //timer 4 seconds deadline
   while(1) {
-    timer_set(&timer_etimer, 4 * CLOCK_SECOND);
-    PROCESS_WAIT_EVENT();
-    if (ev == PROCESS_EVENT_TIMER){
-        printf("time expirado\n");
-        process_post_synch(&p3,e2,NULL);
-    }
-    else if (ev == e1)
-        printf("comunicacion de proceso p2\n");
-    else
-        printf("evento:%d \n", ev);
+      PROCESS_WAIT_EVENT(); //waits 4 events
+      if (ev == PROCESS_EVENT_TIMER){ //timer expired
+          etimer_reset(&timer_etimer);
+          printf("(p1)timer expirad\n");
+          process_post_synch(&p3,e2,NULL); //sync t0 p3
+      }
+      else if (ev == e1){
+          b+=1;
+          printf("(p1)async call from p3 cont: %d\n", b);
+      }
+      else
+          printf("(p1)event:%d \n", ev);
   }
   PROCESS_END();
 }
@@ -71,14 +72,16 @@ PROCESS_THREAD(p3, ev, data)
 {
   PROCESS_BEGIN();
   e2 = process_alloc_event();
-  ctimer_set(&timer_ctimer, 5 * CLOCK_SECOND, do_callback, NULL);
+  ctimer_set(&timer_ctimer, 5 * CLOCK_SECOND, do_callback, NULL); //callback timer 5 seconds deadline
   static int b = 0;
   while(1){
-      PROCESS_WAIT_EVENT();
-      if (ev == e2)
-          printf("comunicacion de proceso p2\n");
+      PROCESS_WAIT_EVENT(); //wait 4 events
+      if (ev == e2){
+          b+=1;
+          printf("(p3) sync call from p1 cont: %d\n", b);
+      }
       else
-          printf("evento:%d \n", ev);
+          printf("(p3)event:%d \n", ev);
   }
 
   PROCESS_END();
