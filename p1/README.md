@@ -93,7 +93,7 @@ Fija un *callback timer* para activar el sensor utilizando la constante *SENSOR_
 
 * **¿Cuándo se producirá la siguiente lectura del sensor?**
 
-**Estudia el código de la función convert() en tmp-007-sensor.c y lee la sección 7.3.7 del datasheet. **
+**Estudia el código de la función convert() en tmp-007-sensor.c y lee la sección 7.3.7 del datasheet.** 
 
 * **¿Se está respetando lo que se indica en el datasheet?**
 
