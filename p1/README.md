@@ -6,11 +6,11 @@
 
 #### Cuestiones
 
-Trata de responder a las siguientes preguntas:
+**Trata de responder a las siguientes preguntas:**
 
-* ¿Qué función de tmp-007-sensor.c se ejecuta cuando, desde el proceso, se
+* **¿Qué función de tmp-007-sensor.c se ejecuta cuando, desde el proceso, se
 invoca SENSORS_ACTIVATE(tmp_007_sensor)? ¿Con qué argumentos de
-entrada?
+entrada?**
 
 Para comprobar esto primero vamos a observar el valor de la macro SENSORS_ACTIVATE
 nos colocamos en ~ y realizamos:
@@ -72,7 +72,7 @@ static bool enable_sensor(bool enable) {
 }
 ```
 
-* Tras la activación del nodo, ¿cuánto tiempo transcurrirá hasta que se envíe un evento al proceso para que proceda a la lectura?
+* **Tras la activación del nodo, ¿cuánto tiempo transcurrirá hasta que se envíe un evento al proceso para que proceda a la lectura?**
 
 En el fichero ~/CreatorDev/contiki/platform/srf06-cc26xx/sensortag/tmp-007-sensor.c encontramos la siguiente definición:
 
@@ -88,19 +88,15 @@ ctimer_set(&startup_timer,SENSOR_STARTUP_DELAY,notify_ready,NULL);
 ```
 Fija un *callback timer* para activar el sensor utilizando la constante *SENSOR_STARTUP_DELAY* previamente definida.    
 
-Una vez llega el evento, el proceso ejecuta la función get_tmp_reading().
-* ¿Por qué se hace una primera llamada a value() con el argumento
-TMP_007_SENSOR_TYPE_ALL para luego hacer sendas llamadas con
-TYPE_AMBIENT y TYPE_OBJECT?
+**Una vez llega el evento, el proceso ejecuta la función get_tmp_reading().**   
+* **¿Por qué se hace una primera llamada a value() con el argumento TMP_007_SENSOR_TYPE_ALL para luego hacer sendas llamadas con TYPE_AMBIENT y TYPE_OBJECT?**
 
-* ¿Cuándo se producirá la siguiente lectura del sensor?
+* **¿Cuándo se producirá la siguiente lectura del sensor?**
 
-Estudia el código de la función convert() en tmp-007-sensor.c y lee la
-sección 7.3.7 del datasheet. 
+**Estudia el código de la función convert() en tmp-007-sensor.c y lee la sección 7.3.7 del datasheet. **
 
-* ¿Se está respetando lo que se indica en el datasheet?
+* **¿Se está respetando lo que se indica en el datasheet?**
 
-Considera ahora el sensor MPU. Ejecuta el código de ejemplo y observa los valores leídos del sensor MPU mientras mueves el sensor. 
+**Considera ahora el sensor MPU. Ejecuta el código de ejemplo y observa los valores leídos del sensor MPU mientras mueves el sensor.** 
 
-*   ¿A qué direcciones del espacio se
-corresponden los ejes X / Y / Z del acelerómetro?
+*   **¿A qué direcciones del espacio se corresponden los ejes X / Y / Z del acelerómetro?**
