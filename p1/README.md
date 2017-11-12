@@ -173,6 +173,43 @@ dt = t0+t1
 
 * **¿Se está respetando lo que se indica en el datasheet?**
 
+Totalmente, en el código vemos lo siguiente:
+
+```c
+static void
+convert(uint16_t raw_temp, uint16_t raw_obj_temp, float *obj, float *amb)
+{
+  const float SCALE_LSB = 0.03125;
+  float t;
+  int it;
+
+  it = (int)((raw_obj_temp) >> 2);
+  t = ((float)(it)) * SCALE_LSB;
+  *obj = t;
+
+  it = (int)((raw_temp) >> 2);
+  t = (float)it;
+  *amb = t * SCALE_LSB;
+}
+```
+Luego si nos vamos a http://www.ti.com/lit/ds/sbos685c/sbos685c.pdf y a Temperature Format (página 17). Leemos:
+
+
+_The temperature register data format of the TMP007 is reported in a binary twos_
+_complement signed integer format, as Table 3 shows, with 1 LSB = (1 / 32)°C = 0. 3125 °C._
+_To convert the integer temperature result of the TMP007 to degrees Celsius, right-shift_
+_the result by two bits.  Then perform a divide-by-32 of T DIE and T OBJ , the 14-bit_
+_signed integers contained in the corresponding registers.  The sign of the temperature_
+_is the same as the sign of the integer read from the TMP007.  In twos complement_
+_notation, the MSB is the sign bit. If the MSB is 1, the integer is negative_
+_and the absolute value can be obtained by inverting all bits and adding 1. An alternate_
+_method of calculating the absolute value of negative integers is abs(i) = i xor FFFFh_
+_+ 1._
+
+
+Justo lo que observamos en el código.
+
+
 **Considera ahora el sensor MPU. Ejecuta el código de ejemplo y observa los valores leídos del sensor MPU mientras mueves el sensor.** 
 
 *   **¿A qué direcciones del espacio se corresponden los ejes X / Y / Z del acelerómetro?**
