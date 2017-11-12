@@ -72,8 +72,21 @@ static bool enable_sensor(bool enable) {
 }
 ```
 
-* Tras la activación del nodo, ¿cuánto tiempo transcurrirá hasta que se envíe un
-evento al proceso para que proceda a la lectura?
+* Tras la activación del nodo, ¿cuánto tiempo transcurrirá hasta que se envíe un evento al proceso para que proceda a la lectura?
+
+En el fichero ~/CreatorDev/contiki/platform/srf06-cc26xx/sensortag/tmp-007-sensor.c encontramos la siguiente definición:
+
+```c
+#define SENSOR_STARTUP_DELAY 36
+```
+Establece a 275 ms dicho valor.
+
+En el mismo fichero, en la función *configure(int type,int enable)*, la llamada:    
+
+```c
+ctimer_set(&startup_timer,SENSOR_STARTUP_DELAY,notify_ready,NULL);
+```
+Fija un *callback timer* para activar el sensor utilizando la constante *SENSOR_STARTUP_DELAY* previamente definida.    
 
 Una vez llega el evento, el proceso ejecuta la función get_tmp_reading().
 * ¿Por qué se hace una primera llamada a value() con el argumento
