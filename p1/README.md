@@ -17,7 +17,7 @@ nos colocamos en ~ y realizamos:
 
     user-iot@VM-IOT:~$ cat CreatorDev/contiki/core/lib/sensors.h | grep SENSORS_ACTIVATE
     #define SENSORS_ACTIVATE(sensor) (sensor).configure(SENSORS_ACTIVE, 1)
- 
+
 Recibira por parametro un sensor y llamará a el propio configure pasandole la macro SENSORS_ACTIVE y 1.
 Comprobamos la implementación del sensor de emperatura:
 
@@ -25,8 +25,8 @@ Comprobamos la implementación del sensor de emperatura:
     sensors_changed(&tmp_007_sensor);
     SENSORS_SENSOR(tmp_007_sensor, "TMP007", value, configure, status);
     extern const struct sensors_sensor tmp_007_sensor;
-    
-    
+
+
 tmp_007 es un struct del tipo sensors_sensor que es donde contiki guarda la información, vamos a observar la propia
 implementación:
 
@@ -91,7 +91,83 @@ Fija un *callback timer* para activar el sensor utilizando la constante *SENSOR_
 **Una vez llega el evento, el proceso ejecuta la función get_tmp_reading().**   
 * **¿Por qué se hace una primera llamada a value() con el argumento TMP_007_SENSOR_TYPE_ALL para luego hacer sendas llamadas con TYPE_AMBIENT y TYPE_OBJECT?**
 
+value en una estructura de tipo sensor_sensors es un puntero a una functión que nos permi
+te leer el valor del sensor en concreto.
+
+Si nos vamos a platform/srf06.../tmp-007-sensor.c observamos lo siguiente:
+
+```c
+static int
+value(int type)
+{
+  int rv;
+  uint16_t raw_temp;
+  uint16_t raw_obj_temp;
+  float obj_temp;
+  float amb_temp;
+
+  if(enabled != SENSOR_STATUS_READY) {
+    PRINTF("Sensor disabled or starting up (%d)\n", enabled);
+    return CC26XX_SENSOR_READING_ERROR;
+  }
+
+  if((type & TMP_007_SENSOR_TYPE_ALL) == 0) {
+    PRINTF("Invalid type\n");
+    return CC26XX_SENSOR_READING_ERROR;
+  }
+
+  rv = CC26XX_SENSOR_READING_ERROR;
+
+  if(type == TMP_007_SENSOR_TYPE_ALL) {
+    rv = read_data(&raw_temp, &raw_obj_temp);
+
+    if(rv == 0) {
+      return CC26XX_SENSOR_READING_ERROR;
+    }
+
+    convert(raw_temp, raw_obj_temp, &obj_temp, &amb_temp);
+    PRINTF("TMP: %04X %04X       o=%d a=%d\n", raw_temp, raw_obj_temp,
+           (int)(obj_temp * 1000), (int)(amb_temp * 1000));
+
+    obj_temp_latched = (int)(obj_temp * 1000);
+    amb_temp_latched = (int)(amb_temp * 1000);
+    rv = 1;
+  } else if(type == TMP_007_SENSOR_TYPE_OBJECT) {
+    rv = obj_temp_latched;
+  } else if(type == TMP_007_SENSOR_TYPE_AMBIENT) {
+    rv = amb_temp_latched;
+  }
+
+  return rv;
+}
+```
+
+Observamos que para poder optener los demas y realizar una lectura del lector completo 
+tenemos que pasarle primero la opción SENSOR_TYPE_ALL para leer los datos en "crudo y
+almacenarlos en memoria estática, posteriormente y con los valores ya almacenados
+podemos pasarle a value lo parametros OBJECT o AMBIENT para elegir la funcionalidad.
+
 * **¿Cuándo se producirá la siguiente lectura del sensor?**
+
+Despues de cada llamada al metodo concreto reding se procede a llamar a la macro
+SENSORS_DEACTIVATE, esto no es mas que volver a llamar a configure para pedir que
+quite el enable.
+
+Justo después de desactivarlo se activa un ctimer:
+```c
+  clock_time_t next = SENSOR_READING_PERIOD +
+    (random_rand() % SENSOR_READING_RANDOM);
+  ctimer_set(&hdc_timer, next, init_tmp_reading, NULL);
+```
+
+que volvera a llamar a SENSORS_ACTIVATE con enable a 1 para que se repita el proceso anterior.
+por lo tanto tenemos:
+
+        t0 = clock_time_t next = SENSOR_READING_PERIOD + (random_rand() % SENSOR_READING_RANDOM);
+        t1 = #define SENSOR_STARTUP_DELAY 36
+
+dt = t0+t1
+
 
 **Estudia el código de la función convert() en tmp-007-sensor.c y lee la sección 7.3.7 del datasheet.** 
 
