@@ -54,7 +54,7 @@ static int configure(int type, int enable) {
 
 ```
 
-El configure nos lleva a una región de codigo en el que activamos el sensor te temperatura, esto no es mas que realizar la escritura correspondiente:
+El configure nos lleva a una región de codigo en el que activamos el sensor de temperatura, esto no es mas que realizar la escritura correspondiente:
 
 ```c
 static bool enable_sensor(bool enable) {
@@ -74,8 +74,8 @@ static bool enable_sensor(bool enable) {
 
 * Tras la activación del nodo, ¿cuánto tiempo transcurrirá hasta que se envíe un
 evento al proceso para que proceda a la lectura?
-Una vez llega el evento, el proceso ejecuta la función get_tmp_reading().
 
+Una vez llega el evento, el proceso ejecuta la función get_tmp_reading().
 * ¿Por qué se hace una primera llamada a value() con el argumento
 TMP_007_SENSOR_TYPE_ALL para luego hacer sendas llamadas con
 TYPE_AMBIENT y TYPE_OBJECT?
@@ -87,3 +87,7 @@ sección 7.3.7 del datasheet.
 
 * ¿Se está respetando lo que se indica en el datasheet?
 
+Considera ahora el sensor MPU. Ejecuta el código de ejemplo y observa los valores leídos del sensor MPU mientras mueves el sensor. 
+
+*   ¿A qué direcciones del espacio se
+corresponden los ejes X / Y / Z del acelerómetro?
