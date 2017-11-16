@@ -209,8 +209,13 @@ PROCESS_THREAD(p3, ev, data)
 
 	  printf("MPU Acc: Z=");
 	  print_mpu_reading(((int *)data)[ACC_Z]);
+
 	  printf(" G\n");
+	  if (((int *)data) < 0)printf("HACIA ARRIBA\n");
+	  else printf("HACIA HACIA ABAJO\n");
       }
+
+
   }
 
   PROCESS_END();
