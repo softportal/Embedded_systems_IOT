@@ -36,6 +36,9 @@
 #define SENSOR_2     &button_right_sensor
 #define SENSOR_5     &reed_relay_sensor
 
+#define ACC_X 0
+#define ACC_Y 1
+#define ACC_Z 2
 
 static struct etimer et;
 
@@ -69,42 +72,39 @@ static void print_mpu_reading(int reading)
 static void get_mpu_reading()
 {
   int value;
-  clock_time_t next = SENSOR_READING_PERIOD +
-    (random_rand() % SENSOR_READING_RANDOM);
+  static int data[3];
 
-  printf("MPU Gyro: X=");
-  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_X);
-  print_mpu_reading(value);
-  printf(" deg/sec\n");
+  //printf("MPU Gyro: X=");
+  //value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_X);
+  //print_mpu_reading(value);
+  //printf(" deg/sec\n");
 
-  printf("MPU Gyro: Y=");
-  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_Y);
-  print_mpu_reading(value);
-  printf(" deg/sec\n");
 
-  printf("MPU Gyro: Z=");
-  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_Z);
-  print_mpu_reading(value);
-  printf(" deg/sec\n");
 
-  printf("MPU Acc: X=");
+  //printf("MPU Gyro: Y=");
+  //value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_Y);
+  //print_mpu_reading(value);
+  //printf(" deg/sec\n");
+
+  //printf("MPU Gyro: Z=");
+  //value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_Z);
+  //print_mpu_reading(value);
+  //printf(" deg/sec\n");
+
   value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_X);
-  print_mpu_reading(value);
-  printf(" G\n");
+  data[ACC_X] = value;
 
-  printf("MPU Acc: Y=");
   value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Y);
-  print_mpu_reading(value);
-  printf(" G\n");
+  data[ACC_Y] = value;
 
-  printf("MPU Acc: Z=");
   value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Z);
-  print_mpu_reading(value);
-  printf(" G\n");
+  data[ACC_Z] = value;
 
   SENSORS_DEACTIVATE(mpu_9250_sensor);
 
-  ctimer_set(&mpu_timer, next, init_mpu_reading, NULL);
+  process_post_synch(&p3,e2,data);
+
+  //ctimer_set(&mpu_timer, next, init_mpu_reading, NULL);
 }
 
 static void init_mpu_reading(void *not_used)
@@ -135,27 +135,28 @@ PROCESS_THREAD(p1, ev, data)
 
   etimer_set(&et, LOOP_INTERVAL);
 
-  //init mpu sensor
-  init_mpu_reading(NULL);
 
   //GARbAGE?
   e1 = process_alloc_event();
-  etimer_set(&timer_etimer, 4 * CLOCK_SECOND); //timer 4 seconds deadline
+  etimer_set(&timer_etimer, 5 * CLOCK_SECOND); //timer 4 seconds deadline
 
   while(1) {
-
       //PROCESS_YIELD();
       PROCESS_WAIT_EVENT(); //waits 4 events
 
       if (ev == PROCESS_EVENT_TIMER){ //timer expired
+
           if(data == &et) {
             leds_toggle(LEDS_PERIODIC);
             etimer_set(&et,LOOP_INTERVAL);
           }
 
-          //GARBAGE?
-          etimer_reset(&timer_etimer);
-          process_post_synch(&p3,e2,NULL); //sync t0 p3
+  	  //init mpu sensor
+	  init_mpu_reading(NULL);
+
+          //GARBAGE
+          //etimer_reset(&timer_etimer);
+          //process_post_synch(&p3,e2,NULL); //sync t0 p3
       }
       else if(ev == sensors_event) {
           if(data == SENSOR_1) {
@@ -196,7 +197,19 @@ PROCESS_THREAD(p3, ev, data)
   ctimer_set(&timer_ctimer, 5 * CLOCK_SECOND, do_callback, NULL); //callback timer 5 seconds deadline
   while(1){
       PROCESS_WAIT_EVENT(); //wait 4 events
+
       if (ev == e2){
+	  printf("MPU Acc: X=");
+	  print_mpu_reading(((int *)data)[ACC_X]);
+	  printf(" G\n");
+
+	  printf("MPU Acc: Y=");
+	  print_mpu_reading(((int *)data)[ACC_Y]);
+	  printf(" G\n");
+
+	  printf("MPU Acc: Z=");
+	  print_mpu_reading(((int *)data)[ACC_Z]);
+	  printf(" G\n");
       }
   }
 
