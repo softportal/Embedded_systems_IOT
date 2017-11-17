@@ -2,7 +2,8 @@
 ## Aniot
 
 ### Alumnos
-
+Sergio Semedi Barranco
+Lucas Segarra Fernández
 
 #### Cuestiones
 
